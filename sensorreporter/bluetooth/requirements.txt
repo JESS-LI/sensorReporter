@@ -1,0 +1,5 @@
+# If using Bluez
+python-bluez
+
+# If using bluepy
+bluepy
