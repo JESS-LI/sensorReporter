@@ -17,25 +17,28 @@
  Author:      Rich Koshak / Mark Radbourne
  Date:        September 24, 2018
  Purpose:     Grabs the current ARP cache and reports if a specific MAC address is present.
+
+ SR 2.0 Changes: Inherit from Sensor, changed to read the arp table directly instead of 
+   calling the arp command.
 """
 
+import sensor
 import sys
 import os
-import subprocess
 
-class arpScanner:
+class arpScanner(sensor.Sensor):
     """Represents a Mac address to search for in arp output"""
 
-    def __init__(self, publisher, logger, params, sensors, actuators):
+    def __init__(self, connections, logger, params):
+        """Initializes the ARP scanner"""
 
-        self.logger = logger
-        self.publish = publisher
+        super().__init__(logger, params, connections)
+
         self.address = params("Address").lower()
 		
-		# Colons in MAC address mess up OpenHab MQTT item syntax so convert to dots
-        self.destination = params("Destination") + '/' + self.address.replace(':', '.');
-        self.poll = float(params("Poll"))
-        self.state = -1;
+		# Colons in MAC address mess up openHab MQTT item syntax so convert to dots
+        self.destination = self.nodename + '/' + self.address.replace(':', '.')
+        self.state = 'UNDEF'
 
         self.logger.info("----------Configuring arpSensor: Address = " + self.address + " Destination = " + self.destination)
 
@@ -43,38 +46,21 @@ class arpScanner:
 
     def checkState(self):
         """Detects and publishes any state change"""
-        found = False
-        state = 0
-        arpList = subprocess.check_output(['arp', '-n']).split('\n')
-        
-        # Remove blank line
-        arpList.pop()
-        
-        # Remove title
-        del arpList[0]
-        
-        for entry in arpList:
-            if entry.split()[2].lower() == self.address:
-                found = True
-                break
 
-        if found == True:
-            state = 1
-        else:
-            state = 0
-            
+        state = 'OFF'
+        inf = open('/proc/net/arp')
+        try:
+            for line in inf:
+                if line.split()[3].lower() == self.address:
+                    state = 'ON'
+                    break        
+        finally:
+            inf.close()
+
         if state != self.state:
             self.state = state
-            self.publishState()
+            self.publishCurrState()
 
-    def publishState(self):
-        """Publishes the current state"""
-        stateStr = ""
-        
-        if self.state == 1:
-            stateStr = 'ON'
-        else:
-            stateStr = 'OFF'
-            
-        for conn in self.publish:
-            conn.publish(stateStr, self.destination)
+    def cleanup(self):
+        """Does nothing"""
+        pass

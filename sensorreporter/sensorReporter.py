@@ -57,7 +57,6 @@ def on_message(client, userdata, msg):
         for s in sensors:
             if sensors[s].poll > 0:
                 sensors[s].checkState()
-                # sensors[s].publishState() # As far as I can tell checkState calls publishState so this is not needed
     except:
         logger.info("Unexpected error:", sys.exc_info()[0])
 
@@ -154,6 +153,7 @@ def createDevice(config, section):
 
     try:
       module_name, class_name = config.get(section, "Class").rsplit(".", 1)
+      print("Creating a " + config.get(section, "Class"))
       MyDevice = getattr(importlib.import_module(module_name), class_name)
 
       params = lambda key: config.get(section, key)
@@ -166,7 +166,7 @@ def createDevice(config, section):
         # No connection is valid e.g. an actuator connection target
         pass
         
-      d = MyDevice(devConns, logger, params, sensors, actuators)
+      d = MyDevice(devConns, logger, params)
       if config.getfloat(section, "Poll") == -1:
         Thread(target=d.checkState).start() # don't need to use cleanup-on-exit for non-polling sensors
         logger.info("Started thread to to run sensor")

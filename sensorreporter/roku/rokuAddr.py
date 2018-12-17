@@ -18,21 +18,24 @@
  Date:   September 14, 2016
  Purpose: Polls the network and reports the addresses of ROKUs
 
+ SR 2.0 Changes: Inherit from Sensor.
 """
 
+import sensor
 import sys
 import socket
 import re
 import configparser
 
-class rokuAddr:
+class rokuAddr(sensor.Sensor):
     """Represents a sensor which polls for Roku's on the network's current IP addresses"""
 
-    def __init__(self, publisher, logger, params, sensors, actuators):
+    def __init__(self, connections, logger, params):
         """Creates the ssdp request and sets parameters"""
 
-        self.logger = logger
-        self.logger.info('----------Configuring rokuAddr')
+        super().__init__(logger, params, connections)
+
+        self.logger.info('----------Configuring rokuAddr ' + self.nodename)
 
         self.ssdpRequest = "M-SEARCH * HTTP/1.1\r\n" + \
                            "HOST: 239.255.255.250:1900\r\n" + \
@@ -49,7 +52,7 @@ class rokuAddr:
         done = False
         while not done:
             try:
-                self.rokus[params(name)] = params(destination)
+                self.rokus[params(name)] = "{0}/{1}".format(self.nodename, params(destination))
                 self.logger.info("Publishing the IP address for %s to %s" % (params(name), self.rokus[params(name)]))
                 i += 1
                 name = 'Name%s' % (i)
@@ -57,13 +60,11 @@ class rokuAddr:
             except configparser.NoOptionError:
                 done = True
 
-        self.publish = publisher
         self.poll = int(params("Poll"))
         self.checkState()
 
     def checkState(self):
         """Detects and publishes any state change"""
-        self.logger.info(self.rokus["YP0084997801"])
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 2)
@@ -77,7 +78,7 @@ class rokuAddr:
                 if name not in sorted(self.ips.keys()) or self.ips[name] != ip:
                     self.logger.info('{0} is now at {1}, publishing to {2}'.format(name, ip, self.rokus[name]))
                     self.ips[name] = ip
-                    self.publishStateImpl(ip, self.rokus[name])
+                    self.publishState(ip, self.rokus[name])
                 else :
                     break
             except KeyError:
@@ -88,15 +89,11 @@ class rokuAddr:
 
         sock.close()
         
-    def publishStateImpl(self, data, destination):
-        """Iterates through all the registered connections and sends the new data"""
-        for conn in self.publish:
-            conn.publish(data, destination)
-
-    def publishState(self):
+    def publishCurrState(self):
         """Publishes the current state"""
         for name in self.ips:
-            self.publishStateImpl(self.ips[name], self.rokus[name])
+            self.publishState(self.ips[name], self.rokus[name])
 
     def cleanup(self):
         """Does nothing"""
+        pass
