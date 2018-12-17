@@ -1,0 +1,7 @@
+Dropping Phython 2 support
+
+Load connections
+Load sensors / register with connections
+Load actuators / register with connections
+Start connections
+Start sensors polling

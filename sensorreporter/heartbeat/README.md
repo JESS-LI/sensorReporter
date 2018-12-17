@@ -11,7 +11,7 @@ None
 
 ```
 [Sensor8]
-Class = heartbeat.heartbeat
+Class = heartbeat.heartbeat.heartbeat
 Type = Heartbeat
 Connection = MQTT
 Poll = 3600000

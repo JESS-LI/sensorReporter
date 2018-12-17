@@ -21,7 +21,7 @@
 
 import sys
 import RPi.GPIO as GPIO
-import ConfigParser
+import configparser
 
 class rpiGPIOSensor:
     """Represents a sensor connected to a GPIO pin"""
@@ -42,7 +42,7 @@ class rpiGPIOSensor:
                 self.logger.error("Invalid Values option passed for " + self.pin)
             else:
                 self.values = params("Values").split(",")
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             self.values = ["CLOSED", "OPEN"]
         
         self.logger.debug("Sending %s for CLOSED and %s for OPEN" % (self.values[0], self.values[1]))
@@ -70,7 +70,7 @@ class rpiGPIOSensor:
                 except AttributeError:
                     self.logger.error("Imported module does not implement init or stateChange")
                     self.stateCallback = None
-                except ConfigParser.NoOptionError:
+                except configparser.NoOptionError:
                     self.logger.debug("No callback specified")
                     self.stateCallback = None
                 except Exception as e:
@@ -84,7 +84,7 @@ class rpiGPIOSensor:
             else:
                 eventDetection = "NONE"
                 self.stateCallback = None
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             self.logger.debug("No event detection specified")
             self.stateCallback = None
 

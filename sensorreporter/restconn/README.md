@@ -10,12 +10,8 @@ requests
 # Config
 
 ```
-[Sensor12]
-; Scans the ARP cache for the specified MAC address and reports present or not
-Class: arpScanner.arpScanner
-Name: AWiFiPhone
-Address = 00:00:00:11:aa:bb
-Connection: MQTT
-Destination: State/Presence
-Poll: 10
+[Connection2]
+Class = restconn.restConn.restConnection
+Name = REST
+URL = http://localhost:8080/rest/items/
 ```

@@ -10,7 +10,7 @@ paho-mqtt
 
 ```
 [Connection1]
-Class = mqttConn.mqttConnection
+Class = mqttconn.mqttConn.mqttConnection
 Name = MQTT
 Client = sensorReporter
 User = user

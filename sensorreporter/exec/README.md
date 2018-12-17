@@ -4,32 +4,22 @@ Executes a shell command on command (Actuator) or periodically (Sensor).
 
 # Dependencies
 
-subprocess32 if running on Python2
-
-None if running on Python 3
+None
 
 # Config
 
 ```
-[Sensor7]
-; DHT22 Sensor
-Class = DHTSensor.DHTSensor
-Sensor = DHT22
-Pin = 27
-; Either Advanced or Simple
-Mode = Advanced
-; Round temperature with one digit
-PressionTemp = 1
-; Round humidity to zero digits
-PressionHum = 0
-; Select C or F units - defaults to C if not specified
-Scale = C
+[Sensor3]
+; Sensor that executes the configured script or program and publishes the restults to the destination
+Class = exec.execSensor.execSensor
+Type = Exec
 Connection = MQTT
-Destination = sensor7/dht22
-Poll = 10
+Poll = 30
+Script = ./iphone.sh 123.45.56.8 fe:dc:ba:98:76:54
+Destination = scripts/presence/iphone/results
 
 [Actuator2]
-Class = execActuator.execActuator
+Class = exec.execActuator.execActuator
 Type = Exec
 ; Actuators only support MQTT at this time
 ; The content of messages are added as arguments to the command

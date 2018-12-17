@@ -11,7 +11,7 @@ bluepy for BTLE scanning
 
 ```
 [Sensor2]
-Class = bluetoothScanner.btSensor
+Class = bluetooth.bluetoothScanner.btSensor
 Address = F8:F1:B6:3C:4A:FA
 Destination = BluetoothItem
 Connection = REST
@@ -27,7 +27,7 @@ Near = 3
 Far = 15
 
 [Sensor3]
-Class = bluetoothScanner.btSensor
+Class = bluetooth.bluetoothScanner.btSensor
 Address = E8:E0:A5:2B:39:E9
 Connection = MQTT
 Destination = sensor4/topic
@@ -37,7 +37,7 @@ Mode = LOOKUP
 ; Scan for Bluetooth LE devices like an Gigaset G-tag. Scns for presence.
 ; Does not read any values of the device
 [Sensor4]
-Class = bluetoothScanner.btSensor
+Class = bluetooth.bluetoothScanner.btSensor
 Address = A1:B2:C3:D4:E5:F6
 Connection = MQTT
 Destination = switch/topic

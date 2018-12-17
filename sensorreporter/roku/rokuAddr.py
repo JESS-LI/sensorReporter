@@ -23,7 +23,7 @@
 import sys
 import socket
 import re
-import ConfigParser
+import configparser
 
 class rokuAddr:
     """Represents a sensor which polls for Roku's on the network's current IP addresses"""
@@ -50,11 +50,11 @@ class rokuAddr:
         while not done:
             try:
                 self.rokus[params(name)] = params(destination)
-                self.logger.info("Publishing the IP address for %s to %s" % (params(name), params(destination)))
+                self.logger.info("Publishing the IP address for %s to %s" % (params(name), self.rokus[params(name)]))
                 i += 1
                 name = 'Name%s' % (i)
                 destination = 'Destination%s' % (i)
-            except ConfigParser.NoOptionError:
+            except configparser.NoOptionError:
                 done = True
 
         self.publish = publisher
@@ -63,27 +63,33 @@ class rokuAddr:
 
     def checkState(self):
         """Detects and publishes any state change"""
+        self.logger.info(self.rokus["YP0084997801"])
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 2)
-        sock.sendto(self.ssdpRequest, ("239.255.255.250", 1900))
+        sock.sendto(self.ssdpRequest.encode("UTF-8"), ("239.255.255.250", 1900))
         while True:
             try:
                 resp = sock.recv(1024)
-                matchObj = re.match(r'.*USN: uuid:roku:ecp:([\w\d]{12}).*LOCATION: (http://.*/).*', resp, re.S)
+                matchObj = re.match(r'.*USN: uuid:roku:ecp:([\w\d]{12}).*LOCATION: (http://.*/).*', resp.decode("utf-8"), re.S)
                 name = matchObj.group(1)
                 ip = matchObj.group(2)
                 if name not in sorted(self.ips.keys()) or self.ips[name] != ip:
-                  self.logger.info('%s is now at %s' % (name, ip))
-                  self.ips[name] = ip
-                  self.publish(self.ips[name], self.rokus[name])
+                    self.logger.info('{0} is now at {1}, publishing to {2}'.format(name, ip, self.rokus[name]))
+                    self.ips[name] = ip
+                    self.publishStateImpl(ip, self.rokus[name])
                 else :
-                  self.logger.info('%s is still at %s' % (name, ip))
+                    break
+            except KeyError:
+                self.logger.warn("{0} is an unknown roku".format(name))
             except socket.timeout:
+                self.logger.warn("Timeout reading the socket")
                 break
+
         sock.close()
         
     def publishStateImpl(self, data, destination):
+        """Iterates through all the registered connections and sends the new data"""
         for conn in self.publish:
             conn.publish(data, destination)
 

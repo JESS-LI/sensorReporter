@@ -10,7 +10,7 @@ scapy and sensorReporter must run as root.
 
 ```
 [Sensor5]
-Class = dash.dash
+Class = dash.dash.dash
 Connection = MQTT
 ; One Address/Destination pair per button, start with 1, increment numbers
 ; Mac address

@@ -22,11 +22,7 @@
 import sys
 import time
 import os
-
-if os.name == 'posix' and sys.version_info[0] < 3:
-    import subprocess32 as subprocess
-else:
-    import subprocess
+import subprocess
 
 class execSensor:
     """Periodically calls a script/program and publishes the result"""

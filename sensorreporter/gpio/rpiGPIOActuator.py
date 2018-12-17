@@ -22,7 +22,7 @@
 import sys
 import time
 import RPi.GPIO as GPIO
-import ConfigParser
+import configparser
 
 class rpiGPIOActuator:
     """Represents an actuator connected to a GPIO pin"""
@@ -40,7 +40,7 @@ class rpiGPIOActuator:
         
         try:
             out = GPIO.HIGH if params("InitialState")=="ON" else GPIO.LOW
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             pass
 
         GPIO.output(self.pin, out)

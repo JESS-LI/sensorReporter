@@ -25,7 +25,7 @@ print("Starting...")
 
 import logging
 import logging.handlers
-import ConfigParser
+import configparser
 import signal
 import sys
 import time
@@ -37,7 +37,7 @@ import importlib
 # Globals
 logger = logging.getLogger('sensorReporter')
 
-config = ConfigParser.ConfigParser(allow_no_value=True)
+config = configparser.ConfigParser(allow_no_value=True)
 sensors = {}
 actuators = {}
 connections = {}
@@ -65,7 +65,7 @@ def main():
     """Polls the sensor pins and publishes any changes"""
 
     if len(sys.argv) < 2:
-        print "No config file specified on the command line!"
+        print("No config file specified on the command line!")
         sys.exit(1)
 
     loadConfig(sys.argv[1])
@@ -122,7 +122,7 @@ def check(s):
 def configLogger(file, size, num, syslog, level):
     """Configure a rotating log"""
 
-    print "Setting logging level to " + level
+    print("Setting logging level to " + level)
     levels = {
       "CRITICAL": logging.CRITICAL,
       "ERROR"   : logging.ERROR,
@@ -134,14 +134,14 @@ def configLogger(file, size, num, syslog, level):
     logger.setLevel(levels.get(level, logging.NOTSET))
 
     if syslog != "YES":
-      print "Configuring logger: file = " + file + " size = " + str(size) + " num = " + str(num)
+      print("Configuring logger: file = " + file + " size = " + str(size) + " num = " + str(num))
       fh = logging.handlers.RotatingFileHandler(file, mode='a', maxBytes=size, backupCount=num)
       fh.setLevel(logging.DEBUG)
       formatter = logging.Formatter('%(asctime)s %(levelname)s - %(message)s')
       fh.setFormatter(formatter)
       logger.addHandler(fh)
     elif syslog == "YES":
-      print "Configuring syslogging"
+      print("Configuring syslogging")
       sh = logging.handlers.SysLogHandler('/dev/log', facility=logging.handlers.SysLogHandler.LOG_SYSLOG)
       sh.encodePriority(sh.LOG_SYSLOG, sh.LOG_INFO)
       slFormatter = logging.Formatter('[sensorReporter] %(levelname)s - %(message)s')
@@ -162,7 +162,7 @@ def createDevice(config, section):
       try:
         for connStr in params("Connection").split(","):
           devConns.append(connections[connStr])
-      except ConfigParser.NoOptionError:
+      except configparser.NoOptionError:
         # No connection is valid e.g. an actuator connection target
         pass
         
@@ -173,7 +173,7 @@ def createDevice(config, section):
 
       return d
     except ImportError:
-      logger.error("%s.%s is not supported on this platform" % module_name, class_name)
+      logger.error("{0}.{1} is not supported on this platform".format(module_name, class_name))
 
 def createConnection(config, section):
 
@@ -185,12 +185,12 @@ def createConnection(config, section):
       params = lambda key: config.get(section, key)
       connections[name] = MyConn(on_message, logger, params, sensors, actuators)
     except ImportError:
-      logger.error("%s.%s is not supported on this platform" % module_name, class_name)
+      logger.error("{0}.{1} is not supported on this platform".format(module_name, class_name))
 
 
 def loadConfig(configFile):
     """Read in the config file, set up the logger, and populate the sensors"""
-    print "Loading " + configFile
+    print("Loading " + configFile)
     config.read(configFile)
 
     syslog = "NO"

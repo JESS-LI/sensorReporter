@@ -21,14 +21,7 @@
 
 import sys
 import os
-
-if os.name == 'posix' and sys.version_info[0] < 3:
-    try:
-        import subprocess32 as subprocess
-    except ImportError:
-        import subprocess
-else:
-    import subprocess
+import subprocess
 
 class arpScanner:
     """Represents a Mac address to search for in arp output"""

@@ -11,7 +11,7 @@ Adafruit_DHT library and the user sensorReporter runs as must be a member of the
 ```
 [Sensor7]
 ; DHT22 Sensor
-Class = DHTSensor.DHTSensor
+Class = dhtsensor.DHTSensor.DHTSensor
 Sensor = DHT22
 Pin = 27
 ; Either Advanced or Simple

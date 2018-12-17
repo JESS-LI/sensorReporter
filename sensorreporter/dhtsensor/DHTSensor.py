@@ -27,7 +27,7 @@ TODO: Allow other DHT sensors than the DHT22
 import sys
 import time
 import Adafruit_DHT
-import ConfigParser
+import configparser
 
 class DHTSensor:
     """Represents a DHT sensor connected to a GPIO pin"""
@@ -55,7 +55,7 @@ class DHTSensor:
         try:
             if (params("Scale") == 'F'):
                 self.useF = True
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             pass
 
         #Use 1 reading as default

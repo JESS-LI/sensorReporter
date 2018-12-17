@@ -19,7 +19,7 @@
  Purpose: Provides and maintains a connection to a GPIO pin on a Raspberry Pi
 """
 
-import ConfigParser
+import configparser
 
 class rpiGPIOConn:
 
@@ -36,7 +36,7 @@ class rpiGPIOConn:
         
         try:
             self.values = params("Values").split(",")
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             self.values = ["OFF", "ON"]
         
         if len(self.values) != 2:

@@ -10,7 +10,7 @@ None
 
 ```
 [Sensor6]
-Class = rokuAddr.rokuAddr
+Class = roku.rokuAddr.rokuAddr
 Type = Roku
 Connection = MQTT
 Poll = 3600000

@@ -24,7 +24,7 @@
 import sys
 import traceback
 from scapy.all import *
-import ConfigParser
+import configparser
 
 class dash:
     """Scans for ARP packets from Dash buttons"""
@@ -48,7 +48,7 @@ class dash:
             i += 1
             addr = 'Address%s' % (i)
             destination = 'Destination%s' % (i)
-          except ConfigParser.NoOptionError:
+          except configparser.NoOptionError:
             done = True
 
         self.publish = publisher
