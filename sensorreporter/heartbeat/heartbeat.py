@@ -17,49 +17,56 @@
  Author: Rich Koshak
  Date:   October 7, 2016
  Purpose: Sends out a heartbeat message on the polling period
+
+ SR 2.0: Implement the new sensor baseclass.
 """
 
+import sensor
 import sys
 import time
 
-class heartbeat:
+class heartbeat(sensor.Sensor):
     """Issues a heartbeat message on the polling period"""
 
-    def __init__(self, publisher, logger, params, sensors, actuators):
+    def __init__(self, connections, logger, params):
         """Sets the heartbeat message and destination"""
 
-        self.logger = logger
+        super().__init__(logger, params, connections)
+
         self.numDest = params("Num-Dest")
         self.strDest = params("Str-Dest")
-        self.publish = publisher
-        self.poll = float(params("Poll"))
         self.startTime = time.time()
+        self.utmsec = 0
+        self.utstr = "00:00:00"
 
         self.logger.info('----------Configuring heartbeat to msec destination {0} and str destinatin {1} with interval {2}'.format(self.numDest, self.strDest, self.poll))
-        self.publishState()
+        self.checkState()
 
     def checkState(self):
-        """Does nothing"""
-        self.publishState()
+        """Calculates and publishes the current state"""
+        uptime = int(time.time() - self.startTime)
 
-    def publishState(self):
-        """Publishes the heartbeat"""
-        uptime = int((time.time() - self.startTime) * 1000)
-        for conn in self.publish:
-            conn.publish(str(uptime), self.numDest)
-
-        sec = (uptime / (1000)) % 60
-        min = (uptime / (1000*60)) % 60
-        hr  = (uptime / (1000*60*60)) % 24
-        day = uptime / (1000*60*60*24)
-
+        self.upmsec = uptime * 1000
+       
+        sec = uptime % 60
+        min = (uptime / 60) % 60
+        hr  = (uptime / (60*60)) % 24
+        day = uptime / (60*60*24)
         msg = ''
+
         if day > 0:
           msg += '{0}:'.format(day)
         msg += '{0:02d}:{1:02d}:{2:02d}'.format(int(hr), int(min), int(sec))
-        
-        for conn in self.publish:
-            conn.publish(msg, self.strDest)
+        self.utstr = msg
 
+        self.publishState(str(self.upmsec), self.numDest)
+        self.publishState(self.utstr, self.strDest)
+
+    def publishCurrState(self):
+        """Overrides the parent class implementation, publishes the uptime in msec and as a string"""
+        self.publishState(str(self.upmsec), self.numDest)
+        self.publishState(self.upstr, self.strDest)
+    
     def cleanup(self):
         """Does nothing"""
+        pass
